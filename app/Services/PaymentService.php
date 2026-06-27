@@ -57,4 +57,20 @@ class PaymentService
 
         return $payment;
     }
+
+    /**
+     * Retrieve all payments for a specific order.
+     */
+    public function getPaymentsForOrder(int $orderId): \Illuminate\Support\Collection
+    {
+        return $this->paymentRepository->getForOrder($orderId);
+    }
+
+    /**
+     * Retrieve all payments paginated.
+     */
+    public function getAllPayments(int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return $this->paymentRepository->getAllPaginated($perPage);
+    }
 }
