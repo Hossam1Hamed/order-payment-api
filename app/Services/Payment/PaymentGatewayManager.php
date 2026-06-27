@@ -2,11 +2,11 @@
 
 namespace App\Services\Payment;
 
-use App\Repositories\Interfaces\PaymentGatewayRepositoryInterface;
+use App\Services\Payment\Contracts\PaymentGatewayInterface;
 use App\Services\Payment\Exceptions\UnsupportedPaymentGatewayException;
-use App\Services\Payment\Gateways\StripePaymentGateway;
-use App\Services\Payment\Interfaces\PaymentGatewayInterface;
-use InvalidArgumentException;
+use App\Services\Payment\Gateways\CreditCardGateway;
+use App\Services\Payment\Gateways\PayPalGateway;
+use App\Services\Payment\Gateways\StripeGateway;
 
 class PaymentGatewayManager
 {
@@ -15,52 +15,32 @@ class PaymentGatewayManager
      */
     protected array $resolvedGateways = [];
 
-    public function __construct(
-        protected PaymentGatewayRepositoryInterface $gatewayRepository
-    ) {}
-
     /**
-     * Get a payment gateway instance by its code.
+     * Get a payment gateway instance by its method/driver name.
      *
      * @throws UnsupportedPaymentGatewayException
      */
-    public function gateway(?string $code = null): PaymentGatewayInterface
+    public function gateway(string $method): PaymentGatewayInterface
     {
-        // If no code provided, default to the first active gateway
-        if (is_null($code)) {
-            $activeGateways = $this->gatewayRepository->getActiveGateways();
-            if ($activeGateways->isEmpty()) {
-                throw new UnsupportedPaymentGatewayException('default');
-            }
-            $code = $activeGateways->first()->code;
+        if (isset($this->resolvedGateways[$method])) {
+            return $this->resolvedGateways[$method];
         }
 
-        if (isset($this->resolvedGateways[$code])) {
-            return $this->resolvedGateways[$code];
-        }
-
-        return $this->resolvedGateways[$code] = $this->resolveGateway($code);
+        return $this->resolvedGateways[$method] = $this->resolveGateway($method);
     }
 
     /**
-     * Resolve the gateway instance using the database configuration.
+     * Resolve the gateway instance using the environment/config file values.
      *
      * @throws UnsupportedPaymentGatewayException
      */
-    protected function resolveGateway(string $code): PaymentGatewayInterface
+    protected function resolveGateway(string $method): PaymentGatewayInterface
     {
-        $gatewayModel = $this->gatewayRepository->findByCode($code);
-
-        if (!$gatewayModel || !$gatewayModel->is_active) {
-            throw new UnsupportedPaymentGatewayException($code);
-        }
-
-        $config = $gatewayModel->config ?? [];
-
-        return match ($code) {
-            'stripe' => new StripePaymentGateway($config),
-            // We can add other gateways here like 'paypal' => new PaypalPaymentGateway($config),
-            default  => throw new UnsupportedPaymentGatewayException($code),
+        return match ($method) {
+            'credit_card' => new CreditCardGateway(config('services.credit_card', [])),
+            'paypal'      => new PayPalGateway(config('services.paypal', [])),
+            'stripe'      => new StripeGateway(config('services.stripe', [])),
+            default       => throw new UnsupportedPaymentGatewayException($method),
         };
     }
 }

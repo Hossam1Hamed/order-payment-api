@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use App\Exceptions\OrderHasPaymentsException;
+use App\Exceptions\OrderNotConfirmedException;
+use App\Exceptions\PaymentFailedException;
 use App\Services\Payment\Exceptions\UnsupportedPaymentGatewayException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -92,11 +94,28 @@ class ApiExceptionHandler
             );
         });
 
+        // ── 422 Business rule — order is not confirmed ─────────────────────
+        $exceptions->render(function (OrderNotConfirmedException $e, Request $request): JsonResponse {
+            return self::response(
+                message: $e->getMessage(),
+                statusCode: 422,
+            );
+        });
+
         // ── 400 Bad Request — Unsupported Payment Gateway ──────────────────
         $exceptions->render(function (UnsupportedPaymentGatewayException $e, Request $request): JsonResponse {
             return self::response(
                 message: $e->getMessage(),
                 statusCode: 400,
+            );
+        });
+
+        // ── 400 Bad Request — Payment Failed ──────────────────────────────
+        $exceptions->render(function (PaymentFailedException $e, Request $request): JsonResponse {
+            return self::response(
+                message: $e->getMessage(),
+                statusCode: 400,
+                errors: $e->getErrors(),
             );
         });
 
