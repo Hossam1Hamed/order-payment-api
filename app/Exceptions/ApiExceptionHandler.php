@@ -2,6 +2,8 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\OrderHasPaymentsException;
+use App\Services\Payment\Exceptions\UnsupportedPaymentGatewayException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -79,6 +81,22 @@ class ApiExceptionHandler
             return self::response(
                 message: 'Too many requests. Please slow down',
                 statusCode: 429,
+            );
+        });
+
+        // ── 422 Business rule — order has payments ──────────────────────────
+        $exceptions->render(function (OrderHasPaymentsException $e, Request $request): JsonResponse {
+            return self::response(
+                message: $e->getMessage(),
+                statusCode: 422,
+            );
+        });
+
+        // ── 400 Bad Request — Unsupported Payment Gateway ──────────────────
+        $exceptions->render(function (UnsupportedPaymentGatewayException $e, Request $request): JsonResponse {
+            return self::response(
+                message: $e->getMessage(),
+                statusCode: 400,
             );
         });
 
