@@ -10,11 +10,9 @@ class PaymentGateway extends Model
 {
     use HasFactory;
 
-    // ── Code constants ──────────────────────────────────────────────────────
     const CODE_STRIPE   = 'stripe';
     const CODE_PAYPAL   = 'paypal';
 
-    // ── Mass assignable ─────────────────────────────────────────────────────
     protected $fillable = [
         'name',
         'code',
@@ -22,13 +20,10 @@ class PaymentGateway extends Model
         'config',
     ];
 
-    // ── Casts ───────────────────────────────────────────────────────────────
     protected $casts = [
         'is_active' => 'boolean',
         'config'    => 'array',
     ];
-
-    // ── Scopes ──────────────────────────────────────────────────────────────
 
     /**
      * Scope a query to only include active payment gateways.

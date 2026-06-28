@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
-    // ── Mass assignable ─────────────────────────────────────────────────────
     protected $fillable = [
         'order_id',
         'product_name',
@@ -15,15 +14,12 @@ class OrderItem extends Model
         'price',
     ];
 
-    // ── Casts ───────────────────────────────────────────────────────────────
     protected $casts = [
         'quantity'   => 'integer',
         'price'      => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
-
-    // ── Relationships ───────────────────────────────────────────────────────
 
     /**
      * An order item belongs to an order.
@@ -32,8 +28,6 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Order::class);
     }
-
-    // ── Helpers ─────────────────────────────────────────────────────────────
 
     /**
      * Calculate the subtotal for this line item.

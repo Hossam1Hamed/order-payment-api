@@ -31,7 +31,6 @@ class StorePaymentRequest extends FormRequest
                 ]),
             ],
             // Standard client-side pre-authorized payment reference or payload token
-            'payment_id'         => 'sometimes|string|max:255',
             'payment_gateway_id' => 'sometimes|string|max:255',
             
             // Conditional validation rules based on selected gateway method:

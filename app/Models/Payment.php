@@ -7,18 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    // ── Status constants ────────────────────────────────────────────────────
     const STATUS_PENDING    = 'pending';
     const STATUS_SUCCESSFUL = 'successful';
     const STATUS_FAILED     = 'failed';
 
-    // ── Method constants ────────────────────────────────────────────────────
     const METHOD_CREDIT_CARD    = 'credit_card';
     const METHOD_PAYPAL         = 'paypal';
     const METHOD_STRIPE         = 'stripe';
     const METHOD_BANK_TRANSFER  = 'bank_transfer';
 
-    // ── Mass assignable ─────────────────────────────────────────────────────
     protected $fillable = [
         'order_id',
         'payment_gateway_id',
@@ -27,14 +24,11 @@ class Payment extends Model
         'gateway_response',
     ];
 
-    // ── Casts ───────────────────────────────────────────────────────────────
     protected $casts = [
         'gateway_response' => 'array',
         'created_at'       => 'datetime',
         'updated_at'       => 'datetime',
     ];
-
-    // ── Relationships ───────────────────────────────────────────────────────
 
     /**
      * A payment belongs to an order.
@@ -43,8 +37,6 @@ class Payment extends Model
     {
         return $this->belongsTo(Order::class);
     }
-
-    // ── Helpers ─────────────────────────────────────────────────────────────
 
     public function isPending(): bool
     {
